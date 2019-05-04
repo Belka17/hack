@@ -130,7 +130,11 @@ def margin_face(location, image_array):
     return top, right, bottom, left
 
 
-image_name = 'cool.jpg'
+# image_name = 'IMG_20190319_130014.jpg'
+# image_name = 'photo5328061451182647879.jpg'
+image_name = 'photo5346296237348989396.jpg'
+# image_name = 'photo5362073872725289491.jpg'
+# image_name = 'photo5363993400984054464.jpg'
 CROPPED_IMAGE_PATH = get_croped_path(image_name)
 SHARPED_IMAGE_PATH = get_sharped_path(image_name)
 CONTRAST_IMAGE_PATH = get_contrast_path(image_name)
