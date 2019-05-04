@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 import pytesseract
-from PIL import Image
+from PIL import Image, ImageEnhance
 import platform
 
 win = 'windows'
@@ -17,20 +17,19 @@ src_path_win = 'D:\Labas\hack\crop'
 cropped_suffix = '_cropped'
 sharp_suffix = '_sharp'
 thres_suffix = '_thres'
+contrast_suffix = '_contrast'
 
 crop_dir_linux = '/home/semen/drive/workspace.python/hack/photos/crop/'
 orig_dir_linux = '/home/semen/drive/workspace.python/hack/photos/orig/'
 sharp_dir_linux = '/home/semen/drive/workspace.python/hack/photos/sharp/'
 thres_dir_linux = '/home/semen/drive/workspace.python/hack/photos/thres/'
+contrast_dir_linux = '/home/semen/drive/workspace.python/hack/photos/contrast/'
 
 crop_dir_win = "D:\Labas\hack\crop"
 orig_dir_win = 'D:\Labas\hack\orig'
 sharp_dir_win = 'D:\Labas\hack\sharp'
 thres_dir_win = 'D:\Labas\hack\\thres'
-
-kernel_sharpening = np.array([[-1, -1, -1],
-                              [-1, 9, -1],
-                              [-1, -1, -1]])
+contrast_dir_win = 'D:\Labas\hack\contrast'
 
 
 def get_origin_dir():
@@ -61,6 +60,13 @@ def get_thres_dir():
         return thres_dir_linux
 
 
+def get_contrast_dir():
+    if plat == win:
+        return contrast_dir_win
+    else:
+        return contrast_dir_linux
+
+
 def append_suffix(path: str, suffix: str) -> str:
     base_name = os.path.basename(path)
     name, extension = os.path.splitext(base_name)
@@ -81,6 +87,10 @@ def get_sharped_path(file_name: str) -> str:
 
 def get_thres_path(file_name: str) -> str:
     return os.path.join(get_thres_dir(), append_suffix(file_name, thres_suffix))
+
+
+def get_contrast_path(file_name: str) -> str:
+    return os.path.join(get_contrast_dir(), append_suffix(file_name, contrast_suffix))
 
 
 def get_string(file_path):
@@ -174,19 +184,22 @@ if __name__ == '__main__':
 
     CROPPED_IMAGE_PATH = get_croped_path(image_name)
     SHARPED_IMAGE_PATH = get_sharped_path(image_name)
+    CONTRAST_IMAGE_PATH = get_contrast_path(image_name)
 
     cropped_image = origin_image[y_min:y_max, x_min:x_max]
-    equalized_image = cv2.equalizeHist(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY))
-
     cv2.imwrite(CROPPED_IMAGE_PATH, cropped_image)
 
-    sharpened = cv2.filter2D(cv2.imread(CROPPED_IMAGE_PATH), -1, kernel_sharpening)
+    image = Image.open(CROPPED_IMAGE_PATH)
+    enhancer = ImageEnhance.Sharpness(image)
+    enhanced_im = enhancer.enhance(3.0)
+    enhanced_im.save(SHARPED_IMAGE_PATH)
 
-    cv2.imwrite(SHARPED_IMAGE_PATH, sharpened)
+    image = Image.open(SHARPED_IMAGE_PATH)
+    enhancer = ImageEnhance.Contrast(image)
+    enhanced_im = enhancer.enhance(1.2)
+    enhanced_im.save(CONTRAST_IMAGE_PATH)
 
-    parsed_text = get_string(SHARPED_IMAGE_PATH)
-
+    parsed_text = get_string(CONTRAST_IMAGE_PATH)
     print(parsed_text)
 
     print("------ Done -------")
-
