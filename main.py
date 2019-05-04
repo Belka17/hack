@@ -6,6 +6,8 @@ import pytesseract
 from PIL import Image, ImageEnhance
 import platform
 
+import parsing
+
 win = 'windows'
 linux = 'linux'
 
@@ -118,11 +120,6 @@ def get_string(file_path):
 if __name__ == '__main__':
     image_name = '4.png'
 
-    # print(get_origin_path(get_origin_path(image_name)))
-    # print(get_sharped_path(get_origin_path(image_name)))
-    # print(get_thres_path(get_origin_path(image_name)))
-    # print(get_croped_path(get_origin_path(image_name)))
-
     origin_image = cv2.imread(get_origin_path(image_name))
 
     hls_image = cv2.cvtColor(origin_image, cv2.COLOR_BGR2HLS)
@@ -203,3 +200,6 @@ if __name__ == '__main__':
     print(parsed_text)
 
     print("------ Done -------")
+
+    data = parsing.parse(parsed_text)
+    print(data)
