@@ -34,8 +34,6 @@ thres_dir_win = 'D:\Labas\hack\photos\\thres'
 contrast_dir_win = 'D:\Labas\hack\photos\contrast'
 
 
-
-
 def get_origin_dir():
     if plat == win:
         return orig_dir_win
@@ -97,26 +95,23 @@ def get_contrast_path(file_name: str) -> str:
     return os.path.join(get_contrast_dir(), append_suffix(file_name, contrast_suffix))
 
 
-def get_string(file_path):
+def recognize_text(file_path):
     image = cv2.imread(file_path)
 
-    # Convert to gray
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    greyed_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    kernel = np.ones((1, 1), np.uint8)
+    transform = np.ones((1, 1), np.uint8)
 
-    image = cv2.dilate(image, kernel, iterations=1)
-    image = cv2.erode(image, kernel, iterations=1)
+    greyed_image = cv2.dilate(greyed_image, transform, iterations=1)
+    greyed_image = cv2.erode(greyed_image, transform, iterations=1)
 
     THRES_IMAGE_PATH = get_thres_path(file_path)
 
-    cv2.imwrite(THRES_IMAGE_PATH, image)
-
-    # pytesseract.pytesseract.tesseract_cmd = r'tesseract'
+    cv2.imwrite(THRES_IMAGE_PATH, greyed_image)
 
     result = pytesseract.image_to_string(Image.open(THRES_IMAGE_PATH), lang="ukr")
-
     return result
+
 
 def margin_face(location, image_array):
     top, right, bottom, left = location
@@ -134,10 +129,12 @@ def margin_face(location, image_array):
     top, right, bottom, left = list(map(int, (top, right, bottom, left)))
     return top, right, bottom, left
 
+
 image_name = '4.png'
 CROPPED_IMAGE_PATH = get_croped_path(image_name)
 SHARPED_IMAGE_PATH = get_sharped_path(image_name)
 CONTRAST_IMAGE_PATH = get_contrast_path(image_name)
+
 
 def image_process():
     origin_image = cv2.imread(get_origin_path(image_name))
@@ -239,17 +236,17 @@ def image_process():
     # enhanced_im = enhancer.enhance(1.03)
     # enhanced_im.save(SHARPED_IMAGE_PATH)
 
+    return recognize_text(SHARPED_IMAGE_PATH)
 
-    parsed_text = get_string(SHARPED_IMAGE_PATH)
-    print(parsed_text)
 
 if __name__ == '__main__':
-
     # print(plat)
     # print(get_origin_path(get_origin_path(image_name)))
     # print(get_sharped_path(get_origin_path(image_name)))
     # print(get_thres_path(get_origin_path(image_name)))
     # print(get_croped_path(get_origin_path(image_name)))
 
-    image_process()
-    print("------ Done -------")
+    parsed_text = image_process()
+
+    data = parsing.parse(parsed_text)
+    print(data)

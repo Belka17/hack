@@ -4,8 +4,8 @@ import datefinder
 import dateutil.parser
 import re
 
-_fiscal_number_regexp = '[U+0400–U+04FF]{2}(\s)*\d{5,}'
-_cachier_number_regexp = r'(ПН|П\p{IsCyrillic}|\p{IsCyrillic}Н) \d{12}'
+_fiscal_number_regexp = r'фн\s*(\d+)|^фе\s*(\d+)|^ф\s*(\d+)|^ф\s*(\d+)|и\s*(\d+)|фи\s*(\d+)|9н\s*(\d+)'
+_cachier_number_regexp = r'пн\s*(\d+)|^пе\s*(\d+)|^п\s*(\d+)|^н\s*(\d+)|и\s*\d+|пи\s*(\d+)'
 _date_regexp = "\d{1,2}[\/\\-. ]\d{1,2}[\/\\-. ]\d{2,4}"
 _time_regexp = r'(\d{1,2}[: ]\d{1,2}[: ]\d{1,2}|\d{1,2}[: ]\d{1,2})'
 
@@ -64,11 +64,16 @@ def _get_sum_paid(text: str):
 
 
 def _get_match(pattern: str, text: str):
-    matches = re.findall(pattern, text)
-    return list(map(str, matches))
+    return re.match(pattern, text).group(1)
 
 
 def parse(text: str):
+    text = text.lower()
+    print("READ TEXT:")
+    print()
+    print(text)
+    print()
+    print()
     result = Data()
     result.add_info('fiscal number', _get_match(_fiscal_number_regexp, text))
     result.add_info('cachier number', _get_match(_cachier_number_regexp, text))
