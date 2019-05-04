@@ -1,11 +1,11 @@
 import cv2
 import numpy as np
 import pytesseract
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 # Path of working folder on Disk
 src_path = "D:/Labas/hack/"
-imageName = "7cr.png"
+imageName = "4.png"
 def get_string(img_path):
 
     img = cv2.imread(img_path)
@@ -26,10 +26,31 @@ def get_string(img_path):
 
     return result
 
-imgClean = cv2.imread(src_path + imageName)
+imCV = cv2.imread(src_path + imageName)
+im = Image.open(src_path + imageName)
+
+im_gray = cv2.cvtColor(imCV,cv2.COLOR_BGR2HLS)
+#print(im_gray[:, :, 1])
+L = np.sum(im_gray[:, :, 1])/(imCV.shape[0]*imCV.shape[1])
+print("L = ")
+print(L)
+add_br = 0.0
+threshhold1 = 110
+if L < threshhold1:
+    add_br = 0.1 + (threshhold1 - L)*0.01
+print("add")
+print(add_br)
+
+enhancer = ImageEnhance.Brightness(im)
+enhanced_im = enhancer.enhance(1.0 + add_br)
+
+afterLight = "light.png"
+enhanced_im.save(src_path + afterLight)
+
+imgClean = cv2.imread(src_path + afterLight)
 
 img = cv2.cvtColor(imgClean,cv2.COLOR_BGR2HLS)
-sensitivity = 80
+sensitivity = 60
 lower_white = np.array([0,255-sensitivity,0])
 upper_white = np.array([255,255,255])
 
@@ -86,16 +107,29 @@ afterPreproccesing = "cropped.png"
 cv2.imwrite(src_path + afterPreproccesing, crop_img)
 
 
-
-kernel_sharpening = np.array([[-1,-1,-1],
-                              [-1, 9,-1],
-                              [-1,-1,-1]])
-
-sharpened = cv2.filter2D(cv2.imread(src_path + afterPreproccesing), -1, kernel_sharpening)
 afterSharpening = "sharp.png"
-cv2.imwrite(src_path + afterSharpening, sharpened)
+im = Image.open(afterPreproccesing)
+enhancer = ImageEnhance.Sharpness(im)
+enhanced_im = enhancer.enhance(3.0)
+enhanced_im.save(afterSharpening)
 
-print (get_string(src_path + afterSharpening))
+
+afterContrast = "contrast.png"
+im = Image.open(afterSharpening)
+enhancer = ImageEnhance.Contrast(im)
+enhanced_im = enhancer.enhance(1.5)
+enhanced_im.save(afterContrast)
+# kernel_sharpening = np.array([[-1,-1,-1],
+#                               [-1, 9,-1],
+#                               [-1,-1,-1]])
+#
+# sharpened = cv2.filter2D(cv2.imread(src_path + afterPreproccesing), -1, kernel_sharpening)
+#
+# cv2.imwrite(src_path + afterSharpening, sharpened)
+
+
+
+print (get_string(src_path + afterContrast))
 
 print ("------ Done -------")
 
