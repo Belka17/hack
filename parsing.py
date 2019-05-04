@@ -10,7 +10,6 @@ _date_regexp = "\d{1,2}[\/\\-. ]\d{1,2}[\/\\-. ]\d{2,4}"
 _time_regexp = r'(\d{1,2}[: ]\d{1,2}[: ]\d{1,2}|\d{1,2}[: ]\d{1,2})'
 
 
-
 class Data:
 
     def __init__(self) -> None:
@@ -36,22 +35,18 @@ class Data:
 
 def _get_date(text: str):
     # with finder
-    # matches = datefinder.find_dates(text)
-    # for match in matches:
-    #     print('found date: {}'.format(match))
-    #     return match
+    matches = datefinder.find_dates(text)
+    for match in matches:
+        print('found date: {}'.format(match))
+        return match
 
     # with dateutil
     # result = dateutil.parser.parse("Today is Nov 30 12", fuzzy_with_tokens=True)
     # return result[0]
 
     # with regexp
-    matches = re.findall(_date_regexp, text)
-    return list(map(str, matches))
-
-
-def _get_name(text: str):
-    return None
+    # matches = re.findall(_date_regexp, text)
+    # return list(map(str, matches))
 
 
 def _get_time(text: str):
@@ -59,24 +54,39 @@ def _get_time(text: str):
     return list(map(str, matches))
 
 
-def _get_sum_paid(text: str):
-    return None
-
-
 def _get_match(pattern: str, text: str):
-    return re.match(pattern, text).group(1)
+    matches = re.findall(pattern, text)
+    result = []
+    for match in matches:
+        for mat in match:
+            if mat.strip() != '':
+                result.append(mat)
+    return result
+
+
+def remove_empty(text: str):
+    lines = text.split('\n')
+    result = []
+    for line in lines:
+        if line.strip() != '':
+            result.append(line.strip())
+    return '\n'.join(result)
 
 
 def parse(text: str):
     text = text.lower()
+    text = remove_empty(text)
+
     print("READ TEXT:")
     print()
     print(text)
     print()
     print()
+
     result = Data()
     result.add_info('fiscal number', _get_match(_fiscal_number_regexp, text))
     result.add_info('cachier number', _get_match(_cachier_number_regexp, text))
     result.add_info('date', _get_date(text))
     result.add_info('time', _get_time(text))
+
     return result

@@ -130,7 +130,7 @@ def margin_face(location, image_array):
     return top, right, bottom, left
 
 
-image_name = '4.png'
+image_name = 'cool.jpg'
 CROPPED_IMAGE_PATH = get_croped_path(image_name)
 SHARPED_IMAGE_PATH = get_sharped_path(image_name)
 CONTRAST_IMAGE_PATH = get_contrast_path(image_name)
